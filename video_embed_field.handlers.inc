@@ -39,6 +39,7 @@ function video_embed_field_video_embed_handler_info() {
       'theme' => 'dark',
       'iv_load_policy' => 1,
       'class' => '',
+      'loop' => 0,
     ),
   );
 
@@ -195,7 +196,12 @@ function video_embed_field_handle_youtube($url, $settings) {
 
   // Construct the embed code.
   $settings['wmode'] = 'opaque';
-  $settings_str = urlencode(_video_embed_code_get_settings_str($settings));
+  if(!empty($settings['loop']) && $settings['loop'] == '1') {
+    $settings['playlist'] = $id;
+    unset($settings['loop']);
+    $settings['loop'] = '1';
+  }
+  $settings_str = _video_embed_code_get_settings_str($settings);
 
   $output['#markup'] = '<iframe class="' . check_plain($class) . '" width="' . check_plain($settings['width']) . '" height="' . check_plain($settings['height']) . '" src="//www.youtube.com/embed/' . $id . '?' . $settings_str . '" frameborder="0" allowfullscreen></iframe>';
 
@@ -427,6 +433,13 @@ function video_embed_field_handler_youtube_form($defaults) {
     '#default_value' => $defaults['class'],
   );
 
+  $form['loop'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Loop'),
+    '#description' => t("Loop the video"),
+    '#default_value' => $defaults['loop'],
+  );
+
   return $form;
 }
 
@@ -523,7 +536,7 @@ function video_embed_field_handle_vimeo($url, $settings) {
 
   return array(
     '#markup' => '<iframe class="' . check_plain($class) . '" id="' . $settings['player_id'] . '" width="' . check_plain($settings['width']) . '" height="' . check_plain($settings['height']) . '" src="//player.vimeo.com/video/' . $id .
-    '?' . $settings_str . '" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowfullscreen></iframe>',
+      '?' . $settings_str . '" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowfullscreen></iframe>',
   );
 }
 
